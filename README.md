@@ -1,5 +1,7 @@
 REST API TRIALS
 
+Basic CRUD operations on JSON Object with id and Name as keys
+
 GET : List all movies
 
 POST: Push movies
