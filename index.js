@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const express = require('express');
 const app = express();
 
@@ -29,6 +30,14 @@ app.get('/api/movies/name/:name', (req, res) => {
 })
 
 app.post('/api/movies', (req,res)=>{
+
+    const {error} = validateMovie(req.body);
+
+    if (error){
+        res.status(400).send(error.details[0]['message']);
+        return;
+    }
+
     const movie = {
         id : movies.length + 1,
         name :  req.body.name,
@@ -37,6 +46,29 @@ app.post('/api/movies', (req,res)=>{
     res.send(movie);
 });
 
+ app.put('/api/movies/put/:id',(req,res)=>{
+
+    const movie = movies.find(c => c.id === parseInt(req.params.id));
+    if (!movie) res.status(404).send('No movie found');
+
+    const {error} = validateMovie(req.body);
+
+    if (error){
+        res.status(400).send(error.details[0]['message']);
+        return;
+    }
+
+    movie.name = req.body.name;
+    res.send(movie);
+
+ });
+
+ function validateMovie(movie) {
+    const schema = Joi.object({
+        name: Joi.string().min(3).required()
+    });
+    return schema.validate(movie);
+ }
 
 // PORT
 const port = process.env.PORT || 3000;
