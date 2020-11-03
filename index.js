@@ -11,6 +11,7 @@ const movies = [
     {id: 3, name: 'third'},
 ];
 
+//READ
 app.get('/', (req, res) => {
     
     res.send(movies);
@@ -19,7 +20,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/movies/:id', (req,res) => {
     const movie = movies.find(c => c.id === parseInt(req.params.id));
-    if (!movie) res.status(404).send('No movie found');
+    if (!movie) return res.status(404).send('No movie found');
     else res.send(movie);
 });
 
@@ -29,14 +30,12 @@ app.get('/api/movies/name/:name', (req, res) => {
     else res.send(movie);
 })
 
+//CREATE
 app.post('/api/movies', (req,res)=>{
 
     const {error} = validateMovie(req.body);
 
-    if (error){
-        res.status(400).send(error.details[0]['message']);
-        return;
-    }
+    if (error) return res.status(400).send(error.details[0]['message']);
 
     const movie = {
         id : movies.length + 1,
@@ -46,29 +45,43 @@ app.post('/api/movies', (req,res)=>{
     res.send(movie);
 });
 
+/// UPDATE
  app.put('/api/movies/put/:id',(req,res)=>{
 
     const movie = movies.find(c => c.id === parseInt(req.params.id));
-    if (!movie) res.status(404).send('No movie found');
+    if (!movie) return res.status(404).send('No movie found');
 
     const {error} = validateMovie(req.body);
 
-    if (error){
-        res.status(400).send(error.details[0]['message']);
-        return;
-    }
+    if (error) return res.status(400).send(error.details[0]['message']);
 
     movie.name = req.body.name;
     res.send(movie);
 
  });
 
- function validateMovie(movie) {
+ // DELETE
+app.delete('/api/courses/:id',(req,res)=>{
+
+    const movie = movies.find(c => c.id === parseInt(req.params.id));
+    if (!movie) return res.status(404).send('No movie found');
+
+    const index = movies.indexOf(movie);
+    movies.splice(index, 1);
+
+    res.send();
+
+})
+
+function validateMovie(movie) {
     const schema = Joi.object({
         name: Joi.string().min(3).required()
     });
     return schema.validate(movie);
  }
+
+
+
 
 // PORT
 const port = process.env.PORT || 3000;
